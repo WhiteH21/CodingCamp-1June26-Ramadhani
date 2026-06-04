@@ -1,0 +1,771 @@
+/* =============================================================
+   To-Do Life Dashboard — Complete Stylesheet
+   Tasks 10.1 · 10.2 · 10.3
+   Color scheme: clean light with dark-text for WCAG 2.1 AA
+   ============================================================= */
+
+/* ----------------------------------------------------------
+   1. CSS Custom Properties (design tokens)
+   ---------------------------------------------------------- */
+:root {
+  /* Background palette */
+  --color-page-bg:      #f0f2f5;
+  --color-widget-bg:    #ffffff;
+  --color-widget-alt:   #f8f9fa;
+  --color-input-bg:     #ffffff;
+
+  /* Text palette — all pass 4.5:1 on white/light bg */
+  --color-text-primary:   #1a1a2e;   /* ~16:1 on white */
+  --color-text-secondary: #4a4a6a;   /* ~7:1  on white */
+  --color-text-muted:     #6b6b8a;   /* ~4.6:1 on white */
+  --color-text-placeholder: #9a9ab8;
+
+  /* Accent */
+  --color-accent:        #4f46e5;    /* indigo-600 */
+  --color-accent-hover:  #4338ca;    /* indigo-700 */
+  --color-accent-light:  #ede9fe;    /* indigo-100 */
+
+  /* Danger / destructive */
+  --color-danger:       #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-light: #fee2e2;
+
+  /* Success */
+  --color-success:      #16a34a;
+  --color-success-light:#dcfce7;
+
+  /* Neutral borders */
+  --color-border:       #d1d5db;
+  --color-border-focus: #4f46e5;
+
+  /* Shadow */
+  --shadow-widget:  0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-hover:   0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  /* Spacing */
+  --spacing-xs:  4px;
+  --spacing-sm:  8px;
+  --spacing-md:  16px;
+  --spacing-lg:  24px;
+  --spacing-xl:  32px;
+
+  /* Typography */
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 Roboto, Helvetica, Arial, sans-serif;
+  --font-size-body:    14px;   /* req 7.5 minimum */
+  --font-size-label:   12px;   /* req 7.5 minimum */
+  --font-size-heading: 20px;   /* req 7.5 minimum */
+  --font-size-sm:      13px;
+  --font-size-timer:   48px;
+  --font-size-greeting: 32px;
+
+  --line-height-base:  1.5;    /* ≥ 1.4 — req 7.5 */
+
+  /* Border radius */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+
+  /* Transition */
+  --transition-fast: 0.15s ease;
+}
+
+/* ----------------------------------------------------------
+   2. Reset and base
+   ---------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-page-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ----------------------------------------------------------
+   3. Dashboard Grid Layout (Task 10.1 — Req 7.1, 7.2, 7.5, 7.6)
+   Two-column, two-row grid. All four widgets visible without
+   vertical scroll on viewports ≥ 1024 × 768.
+   ---------------------------------------------------------- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* req: two equal columns */
+  grid-template-rows: auto 1fr;
+  gap: var(--spacing-md);           /* req: ≥ 16 px between widgets */
+  padding: var(--spacing-md);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ----------------------------------------------------------
+   4. Widget card (Task 10.2 — Req 7.2, 7.3, 7.4)
+   ---------------------------------------------------------- */
+.widget {
+  background-color: var(--color-widget-bg);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-widget);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  overflow: hidden;               /* clip children — horizontal overflow guard */
+}
+
+/* ----------------------------------------------------------
+   5. Scrollable To-Do List container (Task 10.3 — Req 3.14, 7.1)
+   Allows 100+ tasks to scroll vertically without disrupting
+   the surrounding grid layout or causing horizontal overflow.
+   ---------------------------------------------------------- */
+.widget--scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 2 * var(--spacing-md));
+}
+
+/* The task list itself also gets overflow containment */
+.todo-list {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;   /* grow to fill available space in the widget */
+}
+
+/* ----------------------------------------------------------
+   6. Typography — headings, body text, labels (Task 10.1 — Req 7.2, 7.5)
+   ---------------------------------------------------------- */
+h1, h2, h3, h4 {
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+}
+
+h1 { font-size: var(--font-size-greeting); font-weight: 700; }
+h2 { font-size: var(--font-size-heading);  font-weight: 600; }  /* ≥ 20 px */
+
+p, li, span, label {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-base);
+}
+
+/* ----------------------------------------------------------
+   7. Greeting Widget
+   ---------------------------------------------------------- */
+.greeting {
+  font-size: var(--font-size-greeting);
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: var(--line-height-base);
+  margin: 0;
+}
+
+.time {
+  font-size: 42px;
+  font-weight: 300;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  line-height: var(--line-height-base);
+  font-variant-numeric: tabular-nums;
+}
+
+.date {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-base);
+}
+
+/* ----------------------------------------------------------
+   8. Focus Timer Widget
+   ---------------------------------------------------------- */
+.widget-title {
+  font-size: var(--font-size-heading);  /* ≥ 20 px */
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: var(--line-height-base);
+  margin: 0;
+}
+
+.timer-display {
+  font-size: var(--font-size-timer);
+  font-weight: 200;
+  letter-spacing: 0.04em;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  line-height: var(--line-height-base);
+}
+
+.timer-controls {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.timer-notification {
+  display: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  line-height: var(--line-height-base);
+  border: 1px solid var(--color-success);
+}
+
+.timer-notification--visible {
+  display: block;
+}
+
+/* ----------------------------------------------------------
+   9. Buttons (Task 10.2 — Req 7.3, 7.4)
+   All interactive elements have detectable hover/focus states.
+   ---------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: 6px var(--spacing-md);
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  line-height: var(--line-height-base);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast),
+              border-color   var(--transition-fast),
+              color          var(--transition-fast),
+              box-shadow     var(--transition-fast),
+              opacity        var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Disabled state */
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ---- Start / generic primary ---- */
+.btn--start {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-accent);
+}
+.btn--start:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+.btn--start:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Stop / secondary ---- */
+.btn--stop {
+  background-color: var(--color-widget-bg);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.btn--stop:hover:not(:disabled) {
+  background-color: var(--color-accent-light);
+}
+.btn--stop:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Reset / neutral ---- */
+.btn--reset {
+  background-color: var(--color-widget-alt);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+.btn--reset:hover:not(:disabled) {
+  background-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+.btn--reset:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Add Task ---- */
+.btn--add-task {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-accent);
+  padding: 6px var(--spacing-sm);
+}
+.btn--add-task:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+.btn--add-task:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Edit ---- */
+.btn--edit {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border-color: transparent;
+  padding: 4px var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+.btn--edit:hover {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+}
+.btn--edit:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Save ---- */
+.btn--save {
+  background-color: var(--color-success);
+  color: #ffffff;
+  border-color: var(--color-success);
+  font-size: var(--font-size-sm);
+}
+.btn--save:hover:not(:disabled) {
+  background-color: #15803d;
+  border-color: #15803d;
+}
+.btn--save:focus-visible {
+  outline: 3px solid var(--color-success);
+  outline-offset: 2px;
+}
+
+/* ---- Cancel ---- */
+.btn--cancel {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+  font-size: var(--font-size-sm);
+}
+.btn--cancel:hover {
+  background-color: var(--color-widget-alt);
+  color: var(--color-text-primary);
+  border-color: var(--color-text-muted);
+}
+.btn--cancel:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Delete ---- */
+.btn--delete {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border-color: transparent;
+  padding: 4px var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+.btn--delete:hover {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+.btn--delete:focus-visible {
+  outline: 3px solid var(--color-danger);
+  outline-offset: 2px;
+}
+
+/* ---- Add Link ---- */
+.btn--add-link {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-accent);
+  width: 100%;
+}
+.btn--add-link:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+.btn--add-link:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   10. Inputs (Task 10.2 — Req 7.4)
+   ---------------------------------------------------------- */
+input[type="text"],
+input[type="url"],
+.todo-input,
+.todo-edit-input,
+.links-label-input,
+.links-url-input {
+  width: 100%;
+  padding: 7px var(--spacing-sm);
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast),
+              box-shadow   var(--transition-fast);
+  outline: none;
+}
+
+input[type="text"]::placeholder,
+input[type="url"]::placeholder,
+.todo-input::placeholder,
+.todo-edit-input::placeholder,
+.links-label-input::placeholder,
+.links-url-input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+/* Hover state */
+input[type="text"]:hover,
+input[type="url"]:hover,
+.todo-input:hover,
+.todo-edit-input:hover,
+.links-label-input:hover,
+.links-url-input:hover {
+  border-color: var(--color-text-muted);
+}
+
+/* Focus state — detectable change per req 7.4 */
+input[type="text"]:focus,
+input[type="url"]:focus,
+.todo-input:focus,
+.todo-edit-input:focus,
+.links-label-input:focus,
+.links-url-input:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* ----------------------------------------------------------
+   11. Checkboxes (Task 10.2 — Req 7.4)
+   ---------------------------------------------------------- */
+.todo-checkbox {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  cursor: pointer;
+  accent-color: var(--color-accent);
+  border-radius: var(--radius-sm);
+  transition: box-shadow var(--transition-fast);
+}
+
+.todo-checkbox:hover {
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  border-radius: 3px;
+}
+
+.todo-checkbox:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   12. Validation messages
+   ---------------------------------------------------------- */
+.validation-message,
+.edit-validation-message,
+.field-error,
+.links-label-error,
+.links-url-error,
+.links-list-error {
+  display: none;
+  font-size: var(--font-size-label);   /* 12 px — req 7.5 */
+  line-height: var(--line-height-base);
+  color: var(--color-danger);
+  margin-top: var(--spacing-xs);
+}
+
+.validation-message--visible,
+.edit-validation-message--visible {
+  display: block;
+}
+
+/* field-error and links-*-error are shown/hidden by JS toggling a visible class
+   or by removing the hidden attribute — support both approaches */
+.field-error:not(:empty),
+.links-label-error:not(:empty),
+.links-url-error:not(:empty),
+.links-list-error:not(:empty) {
+  display: block;
+}
+
+/* ----------------------------------------------------------
+   13. To-Do List Widget
+   ---------------------------------------------------------- */
+.todo-input-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.todo-input {
+  flex: 1;
+}
+
+/* Task item */
+.todo-task {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-xs);
+  border-bottom: 1px solid var(--color-widget-alt);
+  transition: background-color var(--transition-fast);
+  border-radius: var(--radius-sm);
+}
+
+.todo-task:last-child {
+  border-bottom: none;
+}
+
+.todo-task:hover {
+  background-color: var(--color-widget-alt);
+}
+
+/* Task text */
+.todo-task-text {
+  flex: 1;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+/* Completed task — strikethrough (Task 10.2 — Req 3.4, 3.5) */
+.todo-task-text--completed {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+/* Completed task row — subtle de-emphasis */
+.todo-task--completed .todo-task-text {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+/* Inline edit row */
+.todo-edit-input {
+  flex: 1;
+  font-size: var(--font-size-body);
+}
+
+/* Empty state */
+.todo-empty-state {
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-base);
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+/* ----------------------------------------------------------
+   14. Quick Links Widget
+   ---------------------------------------------------------- */
+.links-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.links-form-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.links-form-row > * {
+  flex: 1;
+  min-width: 120px;
+}
+
+.links-field-label {
+  display: block;
+  font-size: var(--font-size-label);   /* 12 px — req 7.5 */
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-base);
+  margin-bottom: var(--spacing-xs);
+}
+
+.links-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual link pill */
+.link-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Link button */
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px var(--spacing-sm);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: var(--line-height-base);
+  color: var(--color-accent);
+  background-color: var(--color-accent-light);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition-fast),
+              color          var(--transition-fast),
+              border-color   var(--transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 160px;
+  text-overflow: ellipsis;
+}
+
+.link-btn:hover {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.link-btn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Delete button inside a link pill */
+.link-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 7px;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+  background-color: var(--color-accent-light);
+  border: 1px solid transparent;
+  border-left: 1px solid rgba(79, 70, 229, 0.25);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  cursor: pointer;
+  line-height: 1;
+  transition: background-color var(--transition-fast),
+              color          var(--transition-fast);
+}
+
+.link-delete:hover {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.link-delete:focus-visible {
+  outline: 3px solid var(--color-danger);
+  outline-offset: 2px;
+}
+
+/* Empty state */
+.links-empty-state {
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-base);
+  padding: var(--spacing-sm) 0;
+}
+
+/* ----------------------------------------------------------
+   15. Toast notification (Task 10.2 — Req 5.8)
+   Fixed, non-blocking overlay. Auto-dismissed after ≥ 3 s
+   by toggling .toast--visible in JavaScript.
+   ---------------------------------------------------------- */
+.toast {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  z-index: 9999;
+
+  min-width: 240px;
+  max-width: 400px;
+  padding: var(--spacing-sm) var(--spacing-md);
+
+  background-color: #1a1a2e;
+  color: #ffffff;
+  font-size: var(--font-size-body);
+  font-family: inherit;
+  line-height: var(--line-height-base);
+
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+
+  /* Hidden by default — non-blocking */
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.25s ease,
+              transform 0.25s ease;
+}
+
+/* Visible state — toggled by JS after 3 + seconds auto-dismiss */
+.toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ----------------------------------------------------------
+   16. Links — generic anchor focus (Task 10.2 — Req 7.4)
+   ---------------------------------------------------------- */
+a:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+a:hover {
+  text-decoration: underline;
+  color: var(--color-accent-hover);
+}
+
+/* ----------------------------------------------------------
+   17. Utility / accessibility
+   ---------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Ensure every focusable element has a visible outline as fallback */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
